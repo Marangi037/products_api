@@ -15,8 +15,6 @@ export const getAllProductsController = async(req, res) => {
 };
 
 export const createProductController = async (req, res) => {
-    /* const result = validationResult(req);
-    if(!result.isEmpty()) return res.json({ errors: result.array() }); */
     const data = req.body;
     const { user: {id}} = req;
     const newProduct = new Product({ ...data, owner: id });
@@ -31,11 +29,11 @@ export const updateProductController = async (req, res) => {
     const {params: {id}} = req;
     const userId = req.user.id;
     const filter = { _id: id, owner: userId };
-    const user = await Product.findByIdAndUpdate(filter, updates, { new: true });
+    const user = await Product.findOneAndUpdate(filter, updates, { new: true });
     if(!user){
         res.status(404).send("User not found");
     }
-    res.status(200).json(user);
+    res.status(201).json(user);
     }
 
 export const getProductController = async (req, res) => {

@@ -20,20 +20,17 @@ const generateRefreshToken = async function (user) {
         process.env.REFRESH_TOKEN_SECRET,
         {expiresIn: '1d'}
     );
-   /*  await new Token({ token: refreshToken }).save(); */
     return refreshToken;
  }
 
-
+//get all users
 export const getAllUsersController = async (req, res) => {
     const users = await User.find();
     res.json(users);
 };
 
+//register user
 export const registerController = async (req, res) => {
-    /* const result = validationResult(req);
-    if(!result.isEmpty()) return res.status(400).send(result.array());
-    const { username, email ,password } = matchedData(req); */
     const { body: {username, email ,password }} = req;
     const newUser = new User({
         username, email, password
@@ -42,10 +39,9 @@ export const registerController = async (req, res) => {
     if(savedUser) return res.status(201).send("User created successfully.");
 };
 
+//login user
+
 export const loginController = async (req, res) => {
-    /* const result = validationResult(req);
-    if(!result.isEmpty) res.status(400).json(result.array());
- */
     const { body: {email, password }} = req;
     const foundUser = await User.findOne({ email });
     if(!foundUser) return res.status(404).send('User does not exist.');
@@ -62,15 +58,21 @@ export const loginController = async (req, res) => {
     return res.status(200).json({ "Access Token":  accessToken });
 };
 
+//update user
 
 export const updateController = async (req, res) => {
-    const result = validationResult(req);
-    if(!result.isEmpty()) return res.status(400).json({ errors: result.array() });
-    const { username, email, password } = matchedData(req);
-    const user = await User.findByIdAndUpdate(req.params.id, {username, email, password}, { new: true, runValidators: true });
-    if(!user) return res.status(400).send("User not found");
-    return res.status(200).send(`update for ${user.username} successful`);
+    const {params:{id}} = req;
+    const data = req.body;
+    const user = await User.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+    if(!user){
+        return res.status(404).send("User not found");
+    }else{
+        return res.status(201).send(`update for ${user.username} successful`);
+    }
+    
 };
+
+//delete user
 
 export const deleteController = async(req, res) => {
     const user = await User.findById(req.params.id);
@@ -83,6 +85,7 @@ export const deleteController = async(req, res) => {
     }
 };
 
+//refresh token
 export const refreshTokenController = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if(!refreshToken){
@@ -94,6 +97,7 @@ export const refreshTokenController = async (req, res) => {
 
 };
 
+//logout token
 export const logoutController = async(req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if(!refreshToken){
