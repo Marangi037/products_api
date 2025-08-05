@@ -29,11 +29,11 @@ export const updateProductController = async (req, res) => {
     const {params: {id}} = req;
     const userId = req.user.id;
     const filter = { _id: id, owner: userId };
-    const user = await Product.findOneAndUpdate(filter, updates, { new: true });
-    if(!user){
+    const product = await Product.findOneAndUpdate(filter, updates, { new: true });
+    if(!product){
         res.status(404).send("User not found");
     }
-    res.status(201).json(user);
+    res.status(200).json(user);
     }
 
 export const getProductController = async (req, res) => {
@@ -54,12 +54,8 @@ export const deleteProductController = async(req, res) => {
     const {params: {id}} = req;
     const userId = req.user.id;
     try{
-        const foundProduct = await Product.findOneAndDelete({ _id: id, owner: userId });
-        if(!foundProduct){
-            return res.status(404).send("Product doesn't exist");
-        }else{
-            return res.sendStatus(204);
-        }
+        await Product.findOneAndDelete({ _id: id, owner: userId });
+        return res.sendStatus(204);
         
     }catch(err){
         res.status(400).send(err);
